@@ -1,0 +1,133 @@
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Dispositivos</h2>
+    <p class="page-subtitle">Gerencie os dispositivos das organizações</p>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()" id="btn-new-device">
+    <span>+</span> Novo Dispositivo
+  </button>
+</div>
+
+@if (error() && !showModal()) {
+  <div class="alert alert-error" role="alert" style="margin-bottom:16px;">
+    <span>⚠️</span> {{ error() }}
+    <button class="btn-icon" (click)="error.set('')" style="margin-left:auto;" title="Fechar">✕</button>
+  </div>
+}
+
+<div class="card">
+  @if (loading()) {
+    <div class="loading-overlay">
+      <span class="spinner"></span>
+      <span>Carregando dispositivos...</span>
+    </div>
+  } @else if (devices().length === 0) {
+    <div class="empty-state">
+      <span class="icon">📱</span>
+      <h3>Nenhum dispositivo</h3>
+      <p>Ainda não há dispositivos cadastrados.</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>Número de Série</th>
+            <th>Tipo</th>
+            <th>Organização</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of devices(); track d.id) {
+            <tr>
+              <td class="text-muted text-sm">{{ d.id }}</td>
+              <td>{{ d.name }}</td>
+              <td><code class="code-cell">{{ d.serialNumber }}</code></td>
+              <td><span [class]="badgeClass(d.type)">{{ labels[d.type] }}</span></td>
+              <td><span class="badge badge-operator">{{ d.organizationName }}</span></td>
+              <td>
+                <div class="actions">
+                  <button class="btn-icon" (click)="openEdit(d)" title="Editar" [id]="'btn-edit-device-' + d.id">✏️</button>
+                  @if (deleteConfirm() === d.id) {
+                    <button class="btn btn-danger" (click)="delete(d.id)" style="font-size:11px;padding:4px 8px;">Confirmar</button>
+                    <button class="btn btn-secondary" (click)="cancelDelete()" style="font-size:11px;padding:4px 8px;">Cancelar</button>
+                  } @else {
+                    <button class="btn-icon" (click)="confirmDelete(d.id)" title="Excluir" [id]="'btn-delete-device-' + d.id" style="color:var(--danger)">🗑️</button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Modal -->
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()" role="dialog">
+      <div class="modal-header">
+        <h3>{{ editTarget() ? '✏️ Editar Dispositivo' : '📱 Novo Dispositivo' }}</h3>
+        <button class="btn-icon" (click)="closeModal()">✕</button>
+      </div>
+      @if (error()) {
+        <div style="padding: 0 24px;">
+          <div class="alert alert-error">⚠️ {{ error() }}</div>
+        </div>
+      }
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="d-name">Nome *</label>
+              <input id="d-name" type="text" class="form-input"
+                     [class.error]="form.get('name')?.invalid && form.get('name')?.touched"
+                     formControlName="name" placeholder="Ex: iPhone 15 Pro" />
+              @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+                <span class="form-error">Nome é obrigatório</span>
+              }
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="d-serial">Número de Série *</label>
+              <input id="d-serial" type="text" class="form-input"
+                     [class.error]="form.get('serialNumber')?.invalid && form.get('serialNumber')?.touched"
+                     formControlName="serialNumber" placeholder="SN-XXXX" />
+              @if (form.get('serialNumber')?.hasError('required') && form.get('serialNumber')?.touched) {
+                <span class="form-error">Número de série é obrigatório</span>
+              }
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="d-type">Tipo *</label>
+              <select id="d-type" class="form-select" formControlName="type">
+                @for (t of deviceTypes; track t) {
+                  <option [value]="t">{{ labels[t] }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="d-org">Organização *</label>
+              <select id="d-org" class="form-select" formControlName="organizationId"
+                      [attr.disabled]="!auth.isManager() ? true : null">
+                <option [value]="null" disabled>Selecione a organização</option>
+                @for (org of orgs(); track org.id) {
+                  <option [value]="org.id">{{ org.name }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving() || form.invalid" id="btn-save-device">
+            @if (saving()) { <span class="spinner"></span> } {{ editTarget() ? 'Salvar' : 'Criar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

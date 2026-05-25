@@ -1,0 +1,227 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-base);
+}
+
+/* ── Background decorativo com a cor Jacto ─────────────────────────── */
+.login-bg { position: absolute; inset: 0; pointer-events: none; }
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.12;
+  animation: float 9s ease-in-out infinite;
+}
+.orb-1 {
+  width: 500px; height: 500px;
+  background: var(--jacto-green);
+  top: -160px; left: -140px;
+}
+.orb-2 {
+  width: 340px; height: 340px;
+  background: #27a347;
+  bottom: -100px; right: -100px;
+  animation-delay: -3.5s;
+}
+.orb-3 {
+  width: 220px; height: 220px;
+  background: #0f5323;
+  top: 55%; right: 18%;
+  animation-delay: -6s;
+  opacity: 0.08;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-22px) scale(1.06); }
+}
+
+/* ── Wrapper: painel verde + card ───────────────────────────────────── */
+.login-wrapper {
+  position: relative; z-index: 1;
+  display: flex;
+  align-items: stretch;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  overflow: hidden;
+  animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── Painel esquerdo: brand ─────────────────────────────────────────── */
+.login-brand {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 300px;
+  min-height: 540px;
+  background: var(--jacto-green);
+  padding: 48px 36px;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Círculos decorativos */
+.login-brand::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 260px; height: 260px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 50%;
+}
+.login-brand::after {
+  content: '';
+  position: absolute;
+  bottom: -100px; left: -60px;
+  width: 320px; height: 320px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 50%;
+}
+
+/* Logo no painel verde: exibida em container branco arredondado */
+.brand-logo-wrap {
+  position: relative; z-index: 1;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 18px;
+  display: inline-block;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+.brand-logo-img {
+  width: 160px;
+  display: block;
+}
+
+.brand-tagline {
+  font-family: 'Barlow', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.45;
+  position: relative; z-index: 1;
+}
+.brand-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  position: relative; z-index: 1;
+  line-height: 1.5;
+}
+
+/* Linha divisória vertical entre painéis */
+.brand-divider {
+  position: absolute;
+  right: 0; top: 10%; bottom: 10%;
+  width: 1px;
+  background: rgba(255,255,255,0.15);
+}
+
+@media (min-width: 720px) {
+  .login-brand { display: flex; }
+}
+
+/* ── Card de formulário ─────────────────────────────────────────────── */
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: none;
+  border-radius: 0 var(--radius-xl) var(--radius-xl) 0;
+  padding: 44px 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Mobile: card standalone com border-radius completo */
+@media (max-width: 719px) {
+  .login-card {
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--jacto-green);
+    border-radius: var(--radius-xl);
+    max-width: 420px;
+    margin: 16px;
+  }
+  .login-wrapper {
+    border-radius: var(--radius-xl);
+  }
+}
+
+/* ── Logo no card ────────────────────────────────────────────────────── */
+.login-logo {
+  text-align: center;
+  padding-bottom: 4px;
+}
+.login-logo-img {
+  width: 170px;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 16px;
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.login-logo p {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────── */
+.login-divider {
+  height: 1px;
+  background: var(--border);
+  border: none;
+  margin: 0;
+}
+
+/* ── Formulário ──────────────────────────────────────────────────────── */
+form { display: flex; flex-direction: column; gap: 16px; }
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  padding: 13px;
+  font-size: 15px;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Credenciais de teste ────────────────────────────────────────────── */
+.login-hint {
+  text-align: center;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.login-hint p { color: var(--text-muted); font-size: 11px; }
+.login-hint code {
+  font-size: 11px;
+  background: var(--bg-surface);
+  color: var(--jacto-green);
+  border: 1px solid var(--border-light);
+  padding: 5px 12px;
+  border-radius: 4px;
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+  user-select: all;
+  cursor: pointer;
+}
+.login-hint code:hover {
+  border-color: var(--jacto-green);
+  background: var(--jacto-green-light);
+}

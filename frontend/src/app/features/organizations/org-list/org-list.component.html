@@ -1,0 +1,128 @@
+<div class="page-header">
+  <div>
+    <h2 class="page-title">Organizações</h2>
+    <p class="page-subtitle">Gerencie as organizações do sistema</p>
+  </div>
+  @if (auth.isManager()) {
+    <button class="btn btn-primary" (click)="openCreate()" id="btn-new-org">
+      <span>+</span> Nova Organização
+    </button>
+  }
+</div>
+
+@if (error() && !showModal()) {
+  <div class="alert alert-error" role="alert" style="margin-bottom:16px;">
+    <span>⚠️</span> {{ error() }}
+    <button class="btn-icon" (click)="error.set('')" style="margin-left:auto;" title="Fechar">✕</button>
+  </div>
+}
+
+<div class="card">
+  @if (loading()) {
+    <div class="loading-overlay">
+      <span class="spinner"></span>
+      <span>Carregando organizações...</span>
+    </div>
+  } @else if (orgs().length === 0) {
+    <div class="empty-state">
+      <span class="icon">🏢</span>
+      <h3>Nenhuma organização</h3>
+      <p>Ainda não há organizações cadastradas.</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nome</th>
+            <th>CNPJ</th>
+            <th>Endereço</th>
+            <th>Criado em</th>
+            @if (auth.isManager()) { <th>Ações</th> }
+          </tr>
+        </thead>
+        <tbody>
+          @for (org of orgs(); track org.id) {
+            <tr>
+              <td class="text-muted text-sm">{{ org.id }}</td>
+              <td>{{ org.name }}</td>
+              <td><code class="cnpj">{{ org.cnpj }}</code></td>
+              <td>{{ org.address || '—' }}</td>
+              <td class="text-muted text-sm">{{ org.createdAt | slice:0:10 }}</td>
+              @if (auth.isManager()) {
+                <td>
+                  <div class="actions">
+                    <button class="btn-icon" (click)="openEdit(org)" title="Editar" [id]="'btn-edit-org-' + org.id">
+                      ✏️
+                    </button>
+                    @if (deleteConfirm() === org.id) {
+                      <button class="btn btn-danger" (click)="delete(org.id)" style="font-size:11px;padding:4px 8px;">Confirmar</button>
+                      <button class="btn btn-secondary" (click)="cancelDelete()" style="font-size:11px;padding:4px 8px;">Cancelar</button>
+                    } @else {
+                      <button class="btn-icon" (click)="confirmDelete(org.id)" title="Excluir" [id]="'btn-delete-org-' + org.id" style="color:var(--danger)">
+                        🗑️
+                      </button>
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Modal ─────────────────────────────────────────────────────────── -->
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()" role="dialog">
+      <div class="modal-header">
+        <h3>{{ editTarget() ? '✏️ Editar Organização' : '🏢 Nova Organização' }}</h3>
+        <button class="btn-icon" (click)="closeModal()">✕</button>
+      </div>
+
+      @if (error()) {
+        <div style="padding: 0 24px;">
+          <div class="alert alert-error">⚠️ {{ error() }}</div>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="org-name">Nome *</label>
+            <input id="org-name" type="text" class="form-input"
+                   [class.error]="form.get('name')?.invalid && form.get('name')?.touched"
+                   formControlName="name" placeholder="Nome da organização" />
+            @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+              <span class="form-error">Nome é obrigatório</span>
+            }
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="org-cnpj">CNPJ *</label>
+            <input id="org-cnpj" type="text" class="form-input"
+                   [class.error]="form.get('cnpj')?.invalid && form.get('cnpj')?.touched"
+                   formControlName="cnpj" placeholder="00.000.000/0001-00" />
+            @if (form.get('cnpj')?.hasError('required') && form.get('cnpj')?.touched) {
+              <span class="form-error">CNPJ é obrigatório</span>
+            }
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="org-address">Endereço</label>
+            <input id="org-address" type="text" class="form-input"
+                   formControlName="address" placeholder="Endereço completo" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="saving() || form.invalid" id="btn-save-org">
+            @if (saving()) { <span class="spinner"></span> } {{ editTarget() ? 'Salvar' : 'Criar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

@@ -1,0 +1,10 @@
+.code-cell {
+  font-size: 12px;
+  background: var(--bg-surface);
+  color: var(--jacto-green);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}

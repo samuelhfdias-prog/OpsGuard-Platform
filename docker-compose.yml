@@ -1,0 +1,71 @@
+
+
+services:
+  # ─────────────────────────────────────────────────
+  #  Banco de dados MySQL 8.0
+  # ─────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: rodojacto-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: rodojacto_db
+      MYSQL_USER: rodojacto
+      MYSQL_PASSWORD: rodojacto123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - rodojacto-net
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ─────────────────────────────────────────────────
+  #  Back-end Spring Boot (Kotlin)
+  # ─────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rodojacto-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - rodojacto-net
+
+  # ─────────────────────────────────────────────────
+  #  Front-end Angular (servido via nginx)
+  # ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rodojacto-web
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - rodojacto-net
+
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  rodojacto-net:
+    driver: bridge

@@ -1,0 +1,87 @@
+<div class="login-page">
+
+  <!-- Wrapper: brand panel + card -->
+  <div class="login-wrapper">
+
+    <!-- Painel de marca (só em telas maiores) -->
+    <div class="login-brand">
+      <div class="brand-logo-wrap">
+        <img src="rodojacto-logo.png" alt="Rodojacto" class="brand-logo-img" />
+      </div>
+      <p class="brand-tagline">Soluções integradas em<br>transporte e logística</p>
+      <p class="brand-sub">Comandante João Ribeiro de Barros<br>km 476, Oriente/SP</p>
+      <div class="brand-divider"></div>
+    </div>
+
+    
+    <div class="login-card">
+
+     
+      <div class="login-logo">
+        <img src="rodojacto-logo.png" alt="Rodojacto" class="login-logo-img" />
+        <p>Sistema de Gestão</p>
+      </div>
+
+      <hr class="login-divider" />
+
+    
+      @if (error()) {
+        <div class="alert alert-error" role="alert">
+          <span>⚠️</span> {{ error() }}
+        </div>
+      }
+
+     
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            class="form-input"
+            [class.error]="form.get('email')?.invalid && form.get('email')?.touched"
+            formControlName="email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+          />
+          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <span class="form-error">E-mail inválido</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Senha</label>
+          <input
+            id="password"
+            type="password"
+            class="form-input"
+            [class.error]="form.get('password')?.invalid && form.get('password')?.touched"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" [disabled]="loading()">
+          @if (loading()) {
+            <span class="spinner"></span> Entrando...
+          } @else {
+            Entrar
+          }
+        </button>
+      </form>
+
+      
+      <div class="login-hint">
+        <p>Credenciais para teste:</p>
+        <code>manager&#64;rodojacto.com / Manager@123</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+</div>
