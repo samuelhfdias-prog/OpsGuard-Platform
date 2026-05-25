@@ -1,4 +1,4 @@
-# 🚛 Rodojacto Challenge — Sistema de Gestão Full Stack
+# 🚛 Desafio Rodojacto — Sistema de Gestão Full Stack
 
 > Desafio técnico para a vaga **Full Stack Developer** na Rodojacto.
 > Aplicação de gestão de **Organizações**, **Colaboradores** e **Dispositivos** com controle de acesso baseado em perfis JWT.
