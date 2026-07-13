@@ -4,6 +4,7 @@ import com.rodojacto.domain.device.DeviceType
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import jakarta.validation.constraints.Positive
 
 data class DeviceRequest(
 
@@ -19,5 +20,6 @@ data class DeviceRequest(
     val type: DeviceType,
 
     @field:NotNull(message = "ID da organização é obrigatório")
+    @field:Positive(message = "ID da organização deve ser positivo")
     val organizationId: Long
 )

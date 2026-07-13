@@ -19,7 +19,9 @@
      
       <div class="login-logo">
         <img src="rodojacto-logo.png" alt="Rodojacto" class="login-logo-img" />
-        <p>Sistema de Gestão</p>
+        <p>Portal de operações</p>
+        <h1>Acesse sua central</h1>
+        <span>Organizações, pessoas e dispositivos em um só lugar.</span>
       </div>
 
       <hr class="login-divider" />
@@ -72,10 +74,12 @@
       </form>
 
       
-      <div class="login-hint">
-        <p>Credenciais para teste:</p>
-        <code>manager&#64;rodojacto.com / Manager@123</code>
-      </div>
+      @if (showDemoCredentials) {
+        <div class="login-hint">
+          <p>Ambiente local de demonstração</p>
+          <code>manager&#64;rodojacto.com / Manager&#64;123</code>
+        </div>
+      }
     </div>
   </div>
 

@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { LoginRequest } from '../../../core/models/auth.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +19,7 @@ export class LoginComponent {
 
   loading = signal(false);
   error = signal('');
+  readonly showDemoCredentials = environment.showDemoCredentials;
 
   form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -24,11 +27,14 @@ export class LoginComponent {
   });
 
   submit(): void {
-    if (this.form.invalid || this.loading()) return;
+    if (this.form.invalid || this.loading()) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.error.set('');
     this.loading.set(true);
 
-    this.auth.login(this.form.value as any).subscribe({
+    this.auth.login(this.form.getRawValue() as LoginRequest).subscribe({
       next: () => this.router.navigate(['/organizations']),
       error: (err) => {
         this.error.set(err.error?.message || 'E-mail ou senha inválidos');

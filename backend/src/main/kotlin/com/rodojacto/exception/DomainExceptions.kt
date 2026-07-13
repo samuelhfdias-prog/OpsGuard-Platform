@@ -8,3 +8,6 @@ class ResourceNotFoundException(message: String) : RuntimeException(message)
 
 /** Acesso a recurso de outra organização (HTTP 403). */
 class ForbiddenException(message: String = "Acesso negado a este recurso") : RuntimeException(message)
+
+/** Excesso de tentativas em uma operação sensível (HTTP 429). */
+class TooManyRequestsException(message: String) : RuntimeException(message)

@@ -46,23 +46,25 @@ class CollaboratorService(
 
     @Transactional
     fun create(request: CollaboratorRequest, currentUser: User): CollaboratorResponse {
+        val cpf = formatCpf(request.cpf)
+        val email = request.email.trim().lowercase()
         val effectiveOrgId = resolveOrganizationId(request.organizationId, currentUser)
 
         val organization = organizationRepository.findById(effectiveOrgId)
             .orElseThrow { ResourceNotFoundException("Organização com ID $effectiveOrgId não encontrada") }
 
-        if (collaboratorRepository.existsByCpf(request.cpf)) {
-            throw BusinessException("Já existe um colaborador com o CPF ${request.cpf}")
+        if (collaboratorRepository.existsByCpf(cpf)) {
+            throw BusinessException("Já existe um colaborador com o CPF $cpf")
         }
-        if (collaboratorRepository.existsByEmail(request.email)) {
-            throw BusinessException("Já existe um colaborador com o e-mail ${request.email}")
+        if (collaboratorRepository.existsByEmail(email)) {
+            throw BusinessException("Já existe um colaborador com o e-mail $email")
         }
 
         val collaborator = Collaborator(
-            name = request.name,
-            cpf = request.cpf,
-            email = request.email,
-            position = request.position,
+            name = request.name.trim(),
+            cpf = cpf,
+            email = email,
+            position = request.position.trim(),
             organization = organization
         )
         return collaboratorRepository.save(collaborator).toResponse()
@@ -70,6 +72,8 @@ class CollaboratorService(
 
     @Transactional
     fun update(id: Long, request: CollaboratorRequest, currentUser: User): CollaboratorResponse {
+        val cpf = formatCpf(request.cpf)
+        val email = request.email.trim().lowercase()
         val collaborator = collaboratorRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Colaborador com ID $id não encontrado") }
 
@@ -84,18 +88,18 @@ class CollaboratorService(
         val organization = organizationRepository.findById(effectiveOrgId)
             .orElseThrow { ResourceNotFoundException("Organização com ID $effectiveOrgId não encontrada") }
 
-        if (collaboratorRepository.existsByCpfAndIdNot(request.cpf, id)) {
-            throw BusinessException("Já existe outro colaborador com o CPF ${request.cpf}")
+        if (collaboratorRepository.existsByCpfAndIdNot(cpf, id)) {
+            throw BusinessException("Já existe outro colaborador com o CPF $cpf")
         }
-        if (collaboratorRepository.existsByEmailAndIdNot(request.email, id)) {
-            throw BusinessException("Já existe outro colaborador com o e-mail ${request.email}")
+        if (collaboratorRepository.existsByEmailAndIdNot(email, id)) {
+            throw BusinessException("Já existe outro colaborador com o e-mail $email")
         }
 
         collaborator.apply {
-            name = request.name
-            cpf = request.cpf
-            email = request.email
-            position = request.position
+            name = request.name.trim()
+            this.cpf = cpf
+            this.email = email
+            position = request.position.trim()
             this.organization = organization
             updatedAt = LocalDateTime.now()
         }
@@ -127,5 +131,10 @@ class CollaboratorService(
                 throw ForbiddenException("Acesso negado ao colaborador com ID ${collaborator.id}")
             }
         }
+    }
+
+    private fun formatCpf(value: String): String {
+        val digits = value.filter(Char::isDigit)
+        return "${digits.substring(0, 3)}.${digits.substring(3, 6)}.${digits.substring(6, 9)}-${digits.substring(9, 11)}"
     }
 }

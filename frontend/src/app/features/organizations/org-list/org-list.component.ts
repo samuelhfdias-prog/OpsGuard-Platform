@@ -1,14 +1,14 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, HostListener, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { SlicePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Organization } from '../../../core/models/organization.model';
+import { Organization, OrganizationRequest } from '../../../core/models/organization.model';
 
 @Component({
   selector: 'app-org-list',
   standalone: true,
-  imports: [ReactiveFormsModule, SlicePipe],
+  imports: [ReactiveFormsModule, DatePipe],
   templateUrl: './org-list.component.html',
   styleUrl: './org-list.component.css'
 })
@@ -27,7 +27,7 @@ export class OrgListComponent implements OnInit {
 
   form = this.fb.group({
     name:    ['', [Validators.required, Validators.maxLength(100)]],
-    cnpj:    ['', [Validators.required, Validators.maxLength(18)]],
+    cnpj:    ['', [Validators.required, Validators.maxLength(18), Validators.pattern(/^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/)]],
     address: ['', Validators.maxLength(200)]
   });
 
@@ -37,7 +37,10 @@ export class OrgListComponent implements OnInit {
     this.loading.set(true);
     this.svc.findAll().subscribe({
       next: data => { this.orgs.set(data); this.loading.set(false); },
-      error: ()   => this.loading.set(false)
+      error: () => {
+        this.error.set('Não foi possível carregar as organizações. Tente novamente.');
+        this.loading.set(false);
+      }
     });
   }
 
@@ -57,11 +60,24 @@ export class OrgListComponent implements OnInit {
 
   closeModal(): void { this.showModal.set(false); }
 
+  @HostListener('document:keydown.escape')
+  closeOnEscape(): void {
+    if (this.showModal() && !this.saving()) this.closeModal();
+  }
+
   save(): void {
-    if (this.form.invalid || this.saving()) return;
+    if (this.form.invalid || this.saving()) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saving.set(true);
     this.error.set('');
-    const payload = this.form.value as any;
+    const value = this.form.getRawValue();
+    const payload: OrganizationRequest = {
+      name: value.name!.trim(),
+      cnpj: value.cnpj!.trim(),
+      address: value.address?.trim() || undefined
+    };
     const target = this.editTarget();
     const req$ = target
       ? this.svc.update(target.id, payload)

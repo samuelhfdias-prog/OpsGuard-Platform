@@ -1,9 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, HostListener, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DeviceService } from '../../../core/services/device.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Device, DeviceType, DEVICE_TYPE_LABELS } from '../../../core/models/device.model';
+import { Device, DeviceRequest, DeviceType, DEVICE_TYPE_LABELS } from '../../../core/models/device.model';
 import { Organization } from '../../../core/models/organization.model';
 
 @Component({
@@ -47,7 +47,10 @@ export class DeviceListComponent implements OnInit {
     this.loading.set(true);
     this.svc.findAll().subscribe({
       next: data => { this.devices.set(data); this.loading.set(false); },
-      error: ()   => this.loading.set(false)
+      error: () => {
+        this.error.set('Não foi possível carregar os dispositivos. Tente novamente.');
+        this.loading.set(false);
+      }
     });
   }
 
@@ -70,11 +73,25 @@ export class DeviceListComponent implements OnInit {
 
   closeModal(): void { this.showModal.set(false); }
 
+  @HostListener('document:keydown.escape')
+  closeOnEscape(): void {
+    if (this.showModal() && !this.saving()) this.closeModal();
+  }
+
   save(): void {
-    if (this.form.invalid || this.saving()) return;
+    if (this.form.invalid || this.saving()) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saving.set(true);
     this.error.set('');
-    const payload = this.form.value as any;
+    const value = this.form.getRawValue();
+    const payload: DeviceRequest = {
+      name: value.name!.trim(),
+      serialNumber: value.serialNumber!.trim().toUpperCase(),
+      type: value.type!,
+      organizationId: value.organizationId!
+    };
     const target  = this.editTarget();
     const req$ = target
       ? this.svc.update(target.id, payload)

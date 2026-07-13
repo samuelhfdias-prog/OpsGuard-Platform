@@ -40,18 +40,19 @@ class DeviceService(
 
     @Transactional
     fun create(request: DeviceRequest, currentUser: User): DeviceResponse {
+        val serialNumber = request.serialNumber.trim().uppercase()
         val effectiveOrgId = resolveOrganizationId(request.organizationId, currentUser)
 
         val organization = organizationRepository.findById(effectiveOrgId)
             .orElseThrow { ResourceNotFoundException("Organização com ID $effectiveOrgId não encontrada") }
 
-        if (deviceRepository.existsBySerialNumber(request.serialNumber)) {
-            throw BusinessException("Já existe um dispositivo com o número de série ${request.serialNumber}")
+        if (deviceRepository.existsBySerialNumber(serialNumber)) {
+            throw BusinessException("Já existe um dispositivo com o número de série $serialNumber")
         }
 
         val device = Device(
-            name = request.name,
-            serialNumber = request.serialNumber,
+            name = request.name.trim(),
+            serialNumber = serialNumber,
             type = request.type,
             organization = organization
         )
@@ -60,6 +61,7 @@ class DeviceService(
 
     @Transactional
     fun update(id: Long, request: DeviceRequest, currentUser: User): DeviceResponse {
+        val serialNumber = request.serialNumber.trim().uppercase()
         val device = deviceRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Dispositivo com ID $id não encontrado") }
 
@@ -73,13 +75,13 @@ class DeviceService(
         val organization = organizationRepository.findById(effectiveOrgId)
             .orElseThrow { ResourceNotFoundException("Organização com ID $effectiveOrgId não encontrada") }
 
-        if (deviceRepository.existsBySerialNumberAndIdNot(request.serialNumber, id)) {
-            throw BusinessException("Já existe outro dispositivo com o número de série ${request.serialNumber}")
+        if (deviceRepository.existsBySerialNumberAndIdNot(serialNumber, id)) {
+            throw BusinessException("Já existe outro dispositivo com o número de série $serialNumber")
         }
 
         device.apply {
-            name = request.name
-            serialNumber = request.serialNumber
+            name = request.name.trim()
+            this.serialNumber = serialNumber
             type = request.type
             this.organization = organization
             updatedAt = LocalDateTime.now()

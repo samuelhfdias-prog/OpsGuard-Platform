@@ -11,10 +11,12 @@ import com.rodojacto.domain.user.Role
 import com.rodojacto.domain.user.User
 import com.rodojacto.domain.user.UserRepository
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Seed de dados iniciais executado na inicialização da aplicação.
@@ -32,12 +34,24 @@ class DataSeeder(
     private val userRepository: UserRepository,
     private val collaboratorRepository: CollaboratorRepository,
     private val deviceRepository: DeviceRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    @Value("\${app.seed.enabled:false}") private val seedEnabled: Boolean,
+    @Value("\${app.seed.manager-password:}") private val managerPassword: String,
+    @Value("\${app.seed.operator-password:}") private val operatorPassword: String
 ) : ApplicationRunner {
 
     private val log = LoggerFactory.getLogger(DataSeeder::class.java)
 
+    @Transactional
     override fun run(args: ApplicationArguments) {
+        if (!seedEnabled) {
+            log.info("Seed de demonstração desabilitado.")
+            return
+        }
+        require(managerPassword.length >= 10 && operatorPassword.length >= 10) {
+            "As senhas do seed devem ter ao menos 10 caracteres"
+        }
+
         if (organizationRepository.count() > 0) {
             log.info("Banco de dados já populado. Seed ignorado.")
             return
@@ -69,21 +83,21 @@ class DataSeeder(
                 User(
                     name = "Admin Manager",
                     email = "manager@rodojacto.com",
-                    password = passwordEncoder.encode("Manager@123"),
+                    password = passwordEncoder.encode(managerPassword),
                     role = Role.MANAGER,
                     organization = orgLogistica
                 ),
                 User(
                     name = "Operador Logística",
                     email = "operator1@rodojacto.com",
-                    password = passwordEncoder.encode("Operator@123"),
+                    password = passwordEncoder.encode(operatorPassword),
                     role = Role.OPERATOR,
                     organization = orgLogistica
                 ),
                 User(
                     name = "Operador Transporte",
                     email = "operator2@rodojacto.com",
-                    password = passwordEncoder.encode("Operator@123"),
+                    password = passwordEncoder.encode(operatorPassword),
                     role = Role.OPERATOR,
                     organization = orgTransporte
                 )
@@ -154,11 +168,6 @@ class DataSeeder(
             )
         )
 
-        log.info("═══════════════════════════════════════════")
-        log.info("  Seed concluído! Credenciais de acesso:")
-        log.info("  manager@rodojacto.com   → Manager@123  (MANAGER)")
-        log.info("  operator1@rodojacto.com → Operator@123 (OPERATOR - Logística Brasil)")
-        log.info("  operator2@rodojacto.com → Operator@123 (OPERATOR - TransporteMax)")
-        log.info("═══════════════════════════════════════════")
+        log.info("Seed concluído com usuários de demonstração configurados por ambiente.")
     }
 }

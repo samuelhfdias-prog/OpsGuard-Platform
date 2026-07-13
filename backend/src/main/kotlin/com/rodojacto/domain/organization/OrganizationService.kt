@@ -55,13 +55,14 @@ class OrganizationService(
     @Transactional
     @PreAuthorize("hasRole('MANAGER')")
     fun create(request: OrganizationRequest): OrganizationResponse {
-        if (organizationRepository.existsByCnpj(request.cnpj)) {
-            throw BusinessException("Já existe uma organização com o CNPJ ${request.cnpj}")
+        val cnpj = formatCnpj(request.cnpj)
+        if (organizationRepository.existsByCnpj(cnpj)) {
+            throw BusinessException("Já existe uma organização com o CNPJ $cnpj")
         }
         val organization = Organization(
-            name = request.name,
-            cnpj = request.cnpj,
-            address = request.address
+            name = request.name.trim(),
+            cnpj = cnpj,
+            address = request.address?.trim()?.ifBlank { null }
         )
         return organizationRepository.save(organization).toResponse()
     }
@@ -72,14 +73,15 @@ class OrganizationService(
         val organization = organizationRepository.findById(id)
             .orElseThrow { ResourceNotFoundException("Organização com ID $id não encontrada") }
 
-        if (organizationRepository.existsByCnpjAndIdNot(request.cnpj, id)) {
-            throw BusinessException("Já existe outra organização com o CNPJ ${request.cnpj}")
+        val cnpj = formatCnpj(request.cnpj)
+        if (organizationRepository.existsByCnpjAndIdNot(cnpj, id)) {
+            throw BusinessException("Já existe outra organização com o CNPJ $cnpj")
         }
 
         organization.apply {
-            name = request.name
-            cnpj = request.cnpj
-            address = request.address
+            name = request.name.trim()
+            this.cnpj = cnpj
+            address = request.address?.trim()?.ifBlank { null }
             updatedAt = LocalDateTime.now()
         }
         return organizationRepository.save(organization).toResponse()
@@ -92,5 +94,10 @@ class OrganizationService(
             throw ResourceNotFoundException("Organização com ID $id não encontrada")
         }
         organizationRepository.deleteById(id)
+    }
+
+    private fun formatCnpj(value: String): String {
+        val digits = value.filter(Char::isDigit)
+        return "${digits.substring(0, 2)}.${digits.substring(2, 5)}.${digits.substring(5, 8)}/${digits.substring(8, 12)}-${digits.substring(12, 14)}"
     }
 }

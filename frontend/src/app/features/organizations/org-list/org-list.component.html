@@ -13,7 +13,7 @@
 @if (error() && !showModal()) {
   <div class="alert alert-error" role="alert" style="margin-bottom:16px;">
     <span>⚠️</span> {{ error() }}
-    <button class="btn-icon" (click)="error.set('')" style="margin-left:auto;" title="Fechar">✕</button>
+    <button type="button" class="btn-icon" (click)="error.set('')" aria-label="Fechar aviso">✕</button>
   </div>
 }
 
@@ -45,22 +45,22 @@
         <tbody>
           @for (org of orgs(); track org.id) {
             <tr>
-              <td class="text-muted text-sm">{{ org.id }}</td>
-              <td>{{ org.name }}</td>
-              <td><code class="cnpj">{{ org.cnpj }}</code></td>
-              <td>{{ org.address || '—' }}</td>
-              <td class="text-muted text-sm">{{ org.createdAt | slice:0:10 }}</td>
+              <td data-label="ID" class="text-muted text-sm">{{ org.id }}</td>
+              <td data-label="Nome">{{ org.name }}</td>
+              <td data-label="CNPJ"><code class="cnpj">{{ org.cnpj }}</code></td>
+              <td data-label="Endereço">{{ org.address || '—' }}</td>
+              <td data-label="Criado em" class="text-muted text-sm">{{ org.createdAt | date:'dd/MM/yyyy' }}</td>
               @if (auth.isManager()) {
-                <td>
+                <td data-label="Ações">
                   <div class="actions">
-                    <button class="btn-icon" (click)="openEdit(org)" title="Editar" [id]="'btn-edit-org-' + org.id">
+                    <button type="button" class="btn-icon" (click)="openEdit(org)" [attr.aria-label]="'Editar ' + org.name" [id]="'btn-edit-org-' + org.id">
                       ✏️
                     </button>
                     @if (deleteConfirm() === org.id) {
-                      <button class="btn btn-danger" (click)="delete(org.id)" style="font-size:11px;padding:4px 8px;">Confirmar</button>
-                      <button class="btn btn-secondary" (click)="cancelDelete()" style="font-size:11px;padding:4px 8px;">Cancelar</button>
+                      <button type="button" class="btn btn-danger btn-compact" (click)="delete(org.id)">Confirmar</button>
+                      <button type="button" class="btn btn-secondary btn-compact" (click)="cancelDelete()">Cancelar</button>
                     } @else {
-                      <button class="btn-icon" (click)="confirmDelete(org.id)" title="Excluir" [id]="'btn-delete-org-' + org.id" style="color:var(--danger)">
+                      <button type="button" class="btn-icon action-delete" (click)="confirmDelete(org.id)" [attr.aria-label]="'Excluir ' + org.name" [id]="'btn-delete-org-' + org.id">
                         🗑️
                       </button>
                     }
@@ -78,10 +78,10 @@
 <!-- Modal ─────────────────────────────────────────────────────────── -->
 @if (showModal()) {
   <div class="modal-backdrop" (click)="closeModal()">
-    <div class="modal" (click)="$event.stopPropagation()" role="dialog">
+    <div class="modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="org-modal-title">
       <div class="modal-header">
-        <h3>{{ editTarget() ? '✏️ Editar Organização' : '🏢 Nova Organização' }}</h3>
-        <button class="btn-icon" (click)="closeModal()">✕</button>
+        <h3 id="org-modal-title">{{ editTarget() ? 'Editar organização' : 'Nova organização' }}</h3>
+        <button type="button" class="btn-icon" (click)="closeModal()" aria-label="Fechar janela">✕</button>
       </div>
 
       @if (error()) {
@@ -108,6 +108,8 @@
                    formControlName="cnpj" placeholder="00.000.000/0001-00" />
             @if (form.get('cnpj')?.hasError('required') && form.get('cnpj')?.touched) {
               <span class="form-error">CNPJ é obrigatório</span>
+            } @else if (form.get('cnpj')?.hasError('pattern') && form.get('cnpj')?.touched) {
+              <span class="form-error">Use o formato 00.000.000/0001-00</span>
             }
           </div>
           <div class="form-group">

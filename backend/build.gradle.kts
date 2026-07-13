@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.4.1"
+    id("org.springframework.boot") version "3.4.13"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.1.20"
     kotlin("plugin.spring") version "2.1.20"  // Torna classes @Component, @Service, etc. open
@@ -40,12 +40,12 @@ dependencies {
     implementation("org.flywaydb:flyway-mysql")
 
     // ─── JWT (jjwt 0.12.x — API moderna) ─────────────────────
-    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+    implementation("io.jsonwebtoken:jjwt-api:0.12.7")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.7")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.7")
 
     // ─── OpenAPI / Swagger UI ────────────────────────────────
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17")
 
     // ─── Testes ──────────────────────────────────────────────
     testImplementation("org.springframework.boot:spring-boot-starter-test")

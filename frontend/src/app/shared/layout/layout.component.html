@@ -1,6 +1,16 @@
 <div class="shell">
+  <header class="mobile-header">
+    <button type="button" class="menu-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()" aria-controls="main-navigation" aria-label="Abrir menu principal">☰</button>
+    <img src="rodojacto-logo.png" alt="Rodojacto" />
+    <span class="mobile-avatar">{{ user()?.name?.charAt(0) | uppercase }}</span>
+  </header>
+
+  @if (menuOpen()) {
+    <button type="button" class="sidebar-overlay" (click)="closeMenu()" aria-label="Fechar menu"></button>
+  }
+
   <!-- Sidebar -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.open]="menuOpen()" id="main-navigation">
     <!-- Logo -->
     <div class="sidebar-logo">
       <img src="rodojacto-logo.png" alt="Rodojacto" class="sidebar-logo-img" />
@@ -12,14 +22,14 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/organizations" routerLinkActive="active" class="nav-item">
+      <a routerLink="/organizations" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item" (click)="closeMenu()">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
           <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
         </svg>
         <span class="nav-label">Organizações</span>
       </a>
-      <a routerLink="/collaborators" routerLinkActive="active" class="nav-item">
+      <a routerLink="/collaborators" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item" (click)="closeMenu()">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
@@ -28,7 +38,7 @@
         </svg>
         <span class="nav-label">Colaboradores</span>
       </a>
-      <a routerLink="/devices" routerLinkActive="active" class="nav-item">
+      <a routerLink="/devices" routerLinkActive="active" ariaCurrentWhenActive="page" class="nav-item" (click)="closeMenu()">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
           <line x1="12" y1="18" x2="12.01" y2="18"/>
@@ -47,7 +57,7 @@
           </span>
         </div>
       </div>
-      <button class="btn-icon logout-btn" (click)="logout()" title="Sair">
+      <button type="button" class="btn-icon logout-btn" (click)="logout()" aria-label="Sair do sistema">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
              viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>

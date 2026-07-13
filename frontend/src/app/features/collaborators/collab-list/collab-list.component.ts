@@ -1,9 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, HostListener, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CollaboratorService } from '../../../core/services/collaborator.service';
 import { OrganizationService } from '../../../core/services/organization.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Collaborator } from '../../../core/models/collaborator.model';
+import { Collaborator, CollaboratorRequest } from '../../../core/models/collaborator.model';
 import { Organization } from '../../../core/models/organization.model';
 
 @Component({
@@ -30,8 +30,8 @@ export class CollabListComponent implements OnInit {
 
   form = this.fb.group({
     name:           ['', [Validators.required, Validators.maxLength(100)]],
-    cpf:            ['', [Validators.required, Validators.maxLength(14)]],
-    email:          ['', [Validators.required, Validators.email]],
+    cpf:            ['', [Validators.required, Validators.maxLength(14), Validators.pattern(/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/)]],
+    email:          ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
     position:       ['', [Validators.required, Validators.maxLength(50)]],
     organizationId: [null as number | null, Validators.required]
   });
@@ -45,7 +45,10 @@ export class CollabListComponent implements OnInit {
     this.loading.set(true);
     this.svc.findAll().subscribe({
       next: data => { this.collabs.set(data); this.loading.set(false); },
-      error: ()   => this.loading.set(false)
+      error: () => {
+        this.error.set('Não foi possível carregar os colaboradores. Tente novamente.');
+        this.loading.set(false);
+      }
     });
   }
 
@@ -68,11 +71,26 @@ export class CollabListComponent implements OnInit {
 
   closeModal(): void { this.showModal.set(false); }
 
+  @HostListener('document:keydown.escape')
+  closeOnEscape(): void {
+    if (this.showModal() && !this.saving()) this.closeModal();
+  }
+
   save(): void {
-    if (this.form.invalid || this.saving()) return;
+    if (this.form.invalid || this.saving()) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saving.set(true);
     this.error.set('');
-    const payload = this.form.value as any;
+    const value = this.form.getRawValue();
+    const payload: CollaboratorRequest = {
+      name: value.name!.trim(),
+      cpf: value.cpf!.trim(),
+      email: value.email!.trim().toLowerCase(),
+      position: value.position!.trim(),
+      organizationId: value.organizationId!
+    };
     const target  = this.editTarget();
     const req$ = target
       ? this.svc.update(target.id, payload)

@@ -5,7 +5,8 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background: var(--bg-base);
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(30,140,58,.08), transparent 42%), var(--bg-base);
 }
 
 /* ── Background decorativo com a cor Jacto ─────────────────────────── */
@@ -46,7 +47,8 @@
   display: flex;
   align-items: stretch;
   border-radius: var(--radius-xl);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  width: min(920px, 100%);
+  box-shadow: 0 28px 90px rgba(0,0,0,0.58);
   overflow: hidden;
   animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1);
 }
@@ -57,9 +59,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  width: 300px;
+  width: 44%;
   min-height: 540px;
-  background: var(--jacto-green);
+  background: linear-gradient(145deg, #207f39, #0f5426);
   padding: 48px 36px;
   gap: 24px;
   position: relative;
@@ -99,7 +101,7 @@
 }
 
 .brand-tagline {
-  font-family: 'Barlow', sans-serif;
+  font-family: inherit;
   font-size: 1.1rem;
   font-weight: 700;
   color: #ffffff;
@@ -127,6 +129,7 @@
 
 /* ── Card de formulário ─────────────────────────────────────────────── */
 .login-card {
+  flex: 1;
   width: 100%;
   max-width: 400px;
   background: var(--bg-card);
@@ -141,12 +144,14 @@
 
 /* Mobile: card standalone com border-radius completo */
 @media (max-width: 719px) {
+  .login-page { padding: 0; align-items: flex-end; }
   .login-card {
     border: 1px solid var(--border);
     border-top: 3px solid var(--jacto-green);
     border-radius: var(--radius-xl);
     max-width: 420px;
-    margin: 16px;
+    margin: 12px;
+    padding: 32px 24px;
   }
   .login-wrapper {
     border-radius: var(--radius-xl);
@@ -176,6 +181,8 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
+.login-logo h1 { margin-top: 14px; font-size: 1.8rem; }
+.login-logo > span { display: block; color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
 
 /* ── Divider ─────────────────────────────────────────────────────────── */
 .login-divider {
@@ -193,7 +200,7 @@ form { display: flex; flex-direction: column; gap: 16px; }
   justify-content: center;
   padding: 13px;
   font-size: 15px;
-  font-family: 'Barlow', sans-serif;
+  font-family: inherit;
   font-weight: 700;
   letter-spacing: 0.04em;
   border-radius: var(--radius-sm);

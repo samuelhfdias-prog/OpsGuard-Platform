@@ -5,6 +5,8 @@ import com.rodojacto.auth.dto.LoginRequest
 import com.rodojacto.domain.user.UserRepository
 import com.rodojacto.security.JwtService
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.stereotype.Service
 
@@ -12,17 +14,26 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val userRepository: UserRepository,
     private val jwtService: JwtService,
-    private val authenticationManager: AuthenticationManager
+    private val authenticationManager: AuthenticationManager,
+    private val loginAttemptService: LoginAttemptService
 ) {
 
     fun login(request: LoginRequest): AuthResponse {
-        // O AuthenticationManager lança BadCredentialsException se inválido (tratado pelo GlobalExceptionHandler)
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(request.email, request.password)
-        )
+        val normalizedEmail = request.email.trim().lowercase()
+        loginAttemptService.ensureAllowed(normalizedEmail)
 
-        val user = userRepository.findByEmail(request.email)
+        try {
+            authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken(normalizedEmail, request.password)
+            )
+        } catch (ex: AuthenticationException) {
+            loginAttemptService.recordFailure(normalizedEmail)
+            throw BadCredentialsException("Credenciais inválidas", ex)
+        }
+
+        val user = userRepository.findByEmail(normalizedEmail)
             .orElseThrow { IllegalStateException("Usuário não encontrado após autenticação bem-sucedida") }
+        loginAttemptService.recordSuccess(normalizedEmail)
 
         val extraClaims = mapOf(
             "role" to user.role.name,

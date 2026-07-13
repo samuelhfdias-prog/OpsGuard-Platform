@@ -6,6 +6,7 @@ import io.jsonwebtoken.MalformedJwtException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -49,6 +50,19 @@ class GlobalExceptionHandler {
             .body(ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "E-mail ou senha inválidos"))
     }
 
+    @ExceptionHandler(TooManyRequestsException::class)
+    fun handleTooManyRequests(ex: TooManyRequestsException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+            .header("Retry-After", "900")
+            .body(ErrorResponse(HttpStatus.TOO_MANY_REQUESTS.value(), ex.message ?: "Muitas tentativas"))
+
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    fun handleDataIntegrity(ex: DataIntegrityViolationException): ResponseEntity<ErrorResponse> {
+        log.warn("Operação rejeitada por integridade referencial")
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(ErrorResponse(HttpStatus.CONFLICT.value(), "Operação não permitida: o registro possui vínculos ou dados duplicados"))
+    }
+
     @ExceptionHandler(ExpiredJwtException::class)
     fun handleExpiredJwt(ex: ExpiredJwtException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -73,7 +87,7 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleGeneral(ex: Exception): ResponseEntity<ErrorResponse> {
-        log.error("Erro inesperado: ${ex.message}", ex)
+        log.error("Erro inesperado", ex)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Erro interno do servidor"))
     }

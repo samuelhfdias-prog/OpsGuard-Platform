@@ -9,14 +9,13 @@ COPY . .
 RUN npm run build -- --configuration production
 
 # ─── Stage 2: Servir com nginx ─────────────────────────────────────────────────
-FROM nginx:1.27-alpine
+FROM nginxinc/nginx-unprivileged:1.27-alpine
 
-# Remove config padrão e copia a nossa
-RUN rm /etc/nginx/conf.d/default.conf
+# Substitui a configuração padrão pela configuração da aplicação
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copia os arquivos buildados
 COPY --from=builder /app/dist/frontend/browser /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]

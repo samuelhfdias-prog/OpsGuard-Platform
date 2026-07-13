@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthUser, LoginRequest, AuthResponse } from '../models/auth.model';
 
-const STORAGE_KEY = 'rodojacto_user';
+const STORAGE_KEY = 'rodojacto_session';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -36,14 +36,14 @@ export class AuthService {
           organizationId: response.organizationId
         };
         this._user.set(user);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(user));
       })
     );
   }
 
   logout(): void {
     this._user.set(null);
-    localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
     this.router.navigate(['/login']);
   }
 
@@ -53,10 +53,39 @@ export class AuthService {
 
   private loadFromStorage(): AuthUser | null {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : null;
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+
+      const parsed = JSON.parse(raw) as Partial<AuthUser>;
+      if (!this.isStoredUser(parsed) || this.isTokenExpired(parsed.token)) {
+        sessionStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      return parsed;
     } catch {
+      sessionStorage.removeItem(STORAGE_KEY);
       return null;
+    }
+  }
+
+  private isStoredUser(value: Partial<AuthUser>): value is AuthUser {
+    return typeof value.token === 'string' &&
+      typeof value.email === 'string' &&
+      typeof value.name === 'string' &&
+      (value.role === 'MANAGER' || value.role === 'OPERATOR') &&
+      (typeof value.organizationId === 'number' || value.organizationId === null);
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return true;
+      const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+      const { exp } = JSON.parse(atob(padded)) as { exp?: number };
+      return typeof exp !== 'number' || exp * 1000 <= Date.now();
+    } catch {
+      return true;
     }
   }
 }

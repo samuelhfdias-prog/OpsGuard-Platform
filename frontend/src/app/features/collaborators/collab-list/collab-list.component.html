@@ -11,7 +11,7 @@
 @if (error() && !showModal()) {
   <div class="alert alert-error" role="alert" style="margin-bottom:16px;">
     <span>⚠️</span> {{ error() }}
-    <button class="btn-icon" (click)="error.set('')" style="margin-left:auto;" title="Fechar">✕</button>
+    <button type="button" class="btn-icon" (click)="error.set('')" aria-label="Fechar aviso">✕</button>
   </div>
 }
 
@@ -44,20 +44,20 @@
         <tbody>
           @for (c of collabs(); track c.id) {
             <tr>
-              <td class="text-muted text-sm">{{ c.id }}</td>
-              <td>{{ c.name }}</td>
-              <td><code class="code-cell">{{ c.cpf }}</code></td>
-              <td>{{ c.email }}</td>
-              <td>{{ c.position }}</td>
-              <td><span class="badge badge-operator">{{ c.organizationName }}</span></td>
-              <td>
+              <td data-label="ID" class="text-muted text-sm">{{ c.id }}</td>
+              <td data-label="Nome">{{ c.name }}</td>
+              <td data-label="CPF"><code class="code-cell">{{ c.cpf }}</code></td>
+              <td data-label="E-mail">{{ c.email }}</td>
+              <td data-label="Cargo">{{ c.position }}</td>
+              <td data-label="Organização"><span class="badge badge-operator">{{ c.organizationName }}</span></td>
+              <td data-label="Ações">
                 <div class="actions">
-                  <button class="btn-icon" (click)="openEdit(c)" title="Editar" [id]="'btn-edit-collab-' + c.id">✏️</button>
+                  <button type="button" class="btn-icon" (click)="openEdit(c)" [attr.aria-label]="'Editar ' + c.name" [id]="'btn-edit-collab-' + c.id">✏️</button>
                   @if (deleteConfirm() === c.id) {
-                    <button class="btn btn-danger" (click)="delete(c.id)" style="font-size:11px;padding:4px 8px;">Confirmar</button>
-                    <button class="btn btn-secondary" (click)="cancelDelete()" style="font-size:11px;padding:4px 8px;">Cancelar</button>
+                    <button type="button" class="btn btn-danger btn-compact" (click)="delete(c.id)">Confirmar</button>
+                    <button type="button" class="btn btn-secondary btn-compact" (click)="cancelDelete()">Cancelar</button>
                   } @else {
-                    <button class="btn-icon" (click)="confirmDelete(c.id)" title="Excluir" [id]="'btn-delete-collab-' + c.id" style="color:var(--danger)">🗑️</button>
+                    <button type="button" class="btn-icon action-delete" (click)="confirmDelete(c.id)" [attr.aria-label]="'Excluir ' + c.name" [id]="'btn-delete-collab-' + c.id">🗑️</button>
                   }
                 </div>
               </td>
@@ -72,10 +72,10 @@
 <!-- Modal -->
 @if (showModal()) {
   <div class="modal-backdrop" (click)="closeModal()">
-    <div class="modal" (click)="$event.stopPropagation()" role="dialog">
+    <div class="modal" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="collab-modal-title">
       <div class="modal-header">
-        <h3>{{ editTarget() ? '✏️ Editar Colaborador' : '👤 Novo Colaborador' }}</h3>
-        <button class="btn-icon" (click)="closeModal()">✕</button>
+        <h3 id="collab-modal-title">{{ editTarget() ? 'Editar colaborador' : 'Novo colaborador' }}</h3>
+        <button type="button" class="btn-icon" (click)="closeModal()" aria-label="Fechar janela">✕</button>
       </div>
       @if (error()) {
         <div style="padding: 0 24px;">
@@ -101,6 +101,8 @@
                      formControlName="cpf" placeholder="000.000.000-00" />
               @if (form.get('cpf')?.hasError('required') && form.get('cpf')?.touched) {
                 <span class="form-error">CPF é obrigatório</span>
+              } @else if (form.get('cpf')?.hasError('pattern') && form.get('cpf')?.touched) {
+                <span class="form-error">Use o formato 000.000.000-00</span>
               }
             </div>
             <div class="form-group">
@@ -126,9 +128,9 @@
             <label class="form-label" for="c-org">Organização *</label>
             <select id="c-org" class="form-select" formControlName="organizationId"
                     [attr.disabled]="!auth.isManager() ? true : null">
-              <option [value]="null" disabled>Selecione a organização</option>
+              <option [ngValue]="null" disabled>Selecione a organização</option>
               @for (org of orgs(); track org.id) {
-                <option [value]="org.id">{{ org.name }}</option>
+                <option [ngValue]="org.id">{{ org.name }}</option>
               }
             </select>
           </div>

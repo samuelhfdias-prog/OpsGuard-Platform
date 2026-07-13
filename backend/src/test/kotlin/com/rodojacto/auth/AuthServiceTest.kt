@@ -32,6 +32,9 @@ class AuthServiceTest {
     @MockK
     private lateinit var authenticationManager: AuthenticationManager
 
+    @MockK(relaxed = true)
+    private lateinit var loginAttemptService: LoginAttemptService
+
     @InjectMockKs
     private lateinit var authService: AuthService
 

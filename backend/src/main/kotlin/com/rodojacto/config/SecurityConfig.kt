@@ -1,9 +1,13 @@
 package com.rodojacto.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.rodojacto.dto.ErrorResponse
 import com.rodojacto.security.JwtAuthFilter
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
@@ -17,6 +21,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
+import org.springframework.security.web.header.writers.StaticHeadersWriter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -33,7 +39,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableMethodSecurity
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthFilter,
-    private val userDetailsService: UserDetailsService
+    private val userDetailsService: UserDetailsService,
+    private val objectMapper: ObjectMapper,
+    @Value("\${security.cors.allowed-origins:}") private val configuredAllowedOrigins: String
 ) {
 
     @Bean
@@ -41,6 +49,16 @@ class SecurityConfig(
         return http
             .csrf { it.disable() }
             .cors { it.configurationSource(corsConfigurationSource()) }
+            .headers { headers ->
+                headers.frameOptions { it.deny() }
+                headers.referrerPolicy { it.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER) }
+                headers.addHeaderWriter(
+                    StaticHeadersWriter("Permissions-Policy", "camera=(), geolocation=(), microphone=(), payment=(), usb=()")
+                )
+                headers.httpStrictTransportSecurity { hsts ->
+                    hsts.includeSubDomains(true).maxAgeInSeconds(31536000)
+                }
+            }
             .authorizeHttpRequests { auth ->
                 auth.requestMatchers("/api/auth/**").permitAll()
                 auth.requestMatchers(
@@ -53,6 +71,23 @@ class SecurityConfig(
                 auth.anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint { _, response, _ ->
+                    response.status = HttpStatus.UNAUTHORIZED.value()
+                    response.contentType = "application/json"
+                    response.characterEncoding = "UTF-8"
+                    objectMapper.writeValue(
+                        response.writer,
+                        ErrorResponse(response.status, "Autenticação necessária ou token inválido")
+                    )
+                }
+                exceptions.accessDeniedHandler { _, response, _ ->
+                    response.status = HttpStatus.FORBIDDEN.value()
+                    response.contentType = "application/json"
+                    response.characterEncoding = "UTF-8"
+                    objectMapper.writeValue(response.writer, ErrorResponse(response.status, "Acesso negado"))
+                }
+            }
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
@@ -61,10 +96,13 @@ class SecurityConfig(
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration().apply {
-            allowedOriginPatterns = listOf("http://localhost:4200", "http://localhost:80", "http://localhost")
+            allowedOrigins = configuredAllowedOrigins.split(',')
+                .map(String::trim)
+                .filter(String::isNotEmpty)
             allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-            allowedHeaders = listOf("*")
-            allowCredentials = true
+            allowedHeaders = listOf("Accept", "Authorization", "Content-Type", "X-Requested-With")
+            exposedHeaders = listOf("Retry-After")
+            allowCredentials = false
             maxAge = 3600L
         }
         return UrlBasedCorsConfigurationSource().also {
@@ -73,7 +111,7 @@ class SecurityConfig(
     }
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder(12)
 
     @Bean
     fun authenticationProvider(): AuthenticationProvider {

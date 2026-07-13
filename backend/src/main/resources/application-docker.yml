@@ -2,6 +2,16 @@
 # Sobrescreve apenas a URL do datasource para usar o hostname do Docker network
 spring:
   datasource:
-    url: jdbc:mysql://mysql:3306/rodojacto_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: rodojacto
-    password: rodojacto123
+    url: jdbc:mysql://mysql:3306/${DB_NAME:rodojacto_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+security:
+  jwt:
+    secret-key: ${JWT_SECRET_KEY}
+
+app:
+  seed:
+    enabled: ${SEED_DATA_ENABLED:false}
+    manager-password: ${SEED_MANAGER_PASSWORD:}
+    operator-password: ${SEED_OPERATOR_PASSWORD:}

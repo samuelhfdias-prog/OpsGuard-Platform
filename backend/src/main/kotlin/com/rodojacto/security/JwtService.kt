@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
 
 /**
@@ -23,10 +24,15 @@ class JwtService {
     @Value("\${security.jwt.expiration}")
     private var jwtExpiration: Long = 86400000L
 
+    @Value("\${security.jwt.issuer}")
+    private lateinit var issuer: String
+
     fun generateToken(userDetails: UserDetails, extraClaims: Map<String, Any> = emptyMap()): String {
         return Jwts.builder()
             .claims(extraClaims)
             .subject(userDetails.username)
+            .issuer(issuer)
+            .id(UUID.randomUUID().toString())
             .issuedAt(Date())
             .expiration(Date(System.currentTimeMillis() + jwtExpiration))
             .signWith(getSigningKey())
@@ -46,6 +52,7 @@ class JwtService {
     private fun <T> extractClaim(token: String, resolver: (Claims) -> T): T {
         val claims = Jwts.parser()
             .verifyWith(getSigningKey())
+            .requireIssuer(issuer)
             .build()
             .parseSignedClaims(token)
             .payload

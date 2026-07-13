@@ -1,269 +1,301 @@
-# 🚛 Desafio Rodojacto — Sistema de Gestão Full Stack
+# Rodojacto — Sistema de Gestão Full Stack
 
-> Desafio técnico para a vaga **Full Stack Developer** na Rodojacto.
-> Aplicação de gestão de **Organizações**, **Colaboradores** e **Dispositivos** com controle de acesso baseado em perfis JWT.
+Aplicação web para administrar organizações, colaboradores e dispositivos, com autenticação JWT e isolamento de dados por perfil. O projeto contém uma API Kotlin/Spring Boot, um SPA Angular e uma infraestrutura Docker Compose pronta para Windows, Linux e macOS.
 
----
+## O que o sistema faz
 
-## 🏗️ Stack Tecnológica
+- Autentica usuários dos perfis `MANAGER` e `OPERATOR`.
+- Gerencia organizações, colaboradores e dispositivos.
+- Restringe operadores aos dados da própria organização no back-end.
+- Valida dados no navegador, na API e no banco de dados.
+- Expõe documentação OpenAPI apenas quando habilitada.
+- Oferece interface responsiva para desktop, tablet e celular.
+
+## Arquitetura
+
+```text
+Navegador
+   │
+   ▼
+Angular + Nginx :4200
+   │ /api (proxy interno)
+   ▼
+Spring Boot :8080
+   │ JPA + Flyway
+   ▼
+MySQL 8.4 :3307 (somente localhost)
+```
+
+No desenvolvimento local, o Angular também encaminha `/api` para `127.0.0.1:8080`. Dessa forma, nenhuma URL do computador do desenvolvedor fica compilada no front-end.
+
+## Tecnologias
 
 | Camada | Tecnologia |
 |---|---|
-| Back-end | Kotlin + Spring Boot 3.2 |
-| Segurança | Spring Security + JWT (jjwt 0.12) |
-| Persistência | Spring Data JPA + Hibernate |
-| Migrações | Flyway |
-| Banco de Dados | MySQL 8.0 (H2 in-memory em dev) |
-| Front-end | Angular 21 (Standalone Components) |
-| Infraestrutura | Docker + Docker Compose |
-| Testes | JUnit 5 + MockK |
-| Documentação API | SpringDoc OpenAPI (Swagger UI) |
+| Front-end | Angular 21.2, TypeScript 5.9, RxJS |
+| Back-end | Kotlin 2.1, Spring Boot 3.4, Spring Security |
+| Autenticação | JWT assinado com HMAC-SHA256, BCrypt 12 |
+| Persistência | Spring Data JPA, Hibernate, Flyway |
+| Bancos | MySQL 8.4 no Docker e H2 em memória no perfil local |
+| Documentação | Springdoc OpenAPI |
+| Infraestrutura | Docker Compose, Nginx sem privilégios |
+| Testes | JUnit 5, MockK e Spring Test |
 
----
-
-## 🚀 Como Rodar o Projeto
+## Início rápido com Docker
 
 ### Pré-requisitos
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e rodando
-- Java 17+ (para rodar o backend sem Docker)
-- Node.js 18+ (para rodar o frontend sem Docker)
 
----
+- Docker Desktop ou Docker Engine com Docker Compose v2.
+- Git.
 
-### ✅ Opção 1 — Docker Compose (Recomendado)
+### 1. Configure o ambiente
 
-> **⚠️ ATENÇÃO IMPORTANTE**: Antes de rodar os comandos abaixo, certifique-se de que o **Docker Desktop está ABERTO e RODANDO** no seu computador. Se o ícone da baleia não estiver ativo ao lado do relógio do Windows, o comando falhará com erro de conexão.
+Clone o repositório e crie o arquivo local de configuração:
 
 ```bash
-# Clone o repositório
-git clone <url-do-repositorio>
-cd rodojacto-challenge
-
-# Suba toda a infraestrutura com um único comando
-docker-compose up --build
+git clone https://github.com/samuelhfdias-prog/Teste-Rodojacto.git
+cd Teste-Rodojacto
+cp .env.example .env
 ```
 
-Aguarde os serviços iniciarem. A ordem de boot é garantida pelo `healthcheck` do MySQL:
+No PowerShell, use:
 
-| Serviço | Porta | URL |
-|---|---|---|
-| API Spring Boot | 8080 | http://localhost:8080 |
-| Swagger UI | 8080 | http://localhost:8080/swagger-ui.html |
-| MySQL | 3306 | localhost:3306/rodojacto_db |
+```powershell
+Copy-Item .env.example .env
+```
 
----
+Edite `.env` e substitua todos os valores iniciados por `troque-`. Gere uma chave JWT Base64 com pelo menos 256 bits:
 
-### 🛠️ Opção 2 — Desenvolvimento Local
-
-**1. Suba apenas o MySQL:**
 ```bash
-docker-compose up mysql -d
+openssl rand -base64 32
 ```
 
-**2. Rode o backend:**
+O arquivo `.env` é ignorado pelo Git e nunca deve ser commitado.
+
+### 2. Suba a aplicação
+
+```bash
+docker compose up --build -d
+docker compose ps
+```
+
+Serviços padrão:
+
+| Serviço | Endereço |
+|---|---|
+| Aplicação web | http://localhost:4200 |
+| API | http://localhost:8080/api/health |
+| Swagger, se habilitado | http://localhost:8080/swagger-ui.html |
+| MySQL | `127.0.0.1:3307` |
+
+Para acompanhar a inicialização:
+
+```bash
+docker compose logs -f backend frontend
+```
+
+Para encerrar sem apagar os dados:
+
+```bash
+docker compose down
+```
+
+Para também apagar o volume do banco, use `docker compose down -v`. Essa operação remove os dados definitivamente.
+
+## Desenvolvimento local
+
+### Requisitos
+
+- JDK 21 em `JAVA_HOME` ou disponível no `PATH`.
+- Node.js 22 ou 24.
+- npm 11.
+
+Não é necessário instalar Gradle: o wrapper oficial acompanha o projeto.
+
+### Back-end
+
+Windows:
+
+```powershell
+cd backend
+.\gradlew.bat bootRun
+```
+
+Linux ou macOS:
+
 ```bash
 cd backend
+chmod +x gradlew
 ./gradlew bootRun
 ```
 
-**3. Rode o frontend:**
+O perfil local usa H2 em memória, executa as migrações Flyway e habilita o seed de demonstração. Os dados são recriados ao reiniciar a aplicação.
+
+### Front-end
+
+Em outro terminal:
+
 ```bash
 cd frontend
-npm install
+npm ci
 npm start
 ```
 
-O frontend estará disponível em **http://localhost:4200/**
+Acesse http://localhost:4200. O proxy de desenvolvimento encaminha chamadas `/api` para o back-end local.
 
----
+### Credenciais somente para o perfil local
 
-## 🔐 Credenciais de Acesso (Seed Automático)
+| Usuário | Senha | Perfil |
+|---|---|---|
+| `manager@rodojacto.com` | `Manager@123` | MANAGER |
+| `operator1@rodojacto.com` | `Operator@123` | OPERATOR |
+| `operator2@rodojacto.com` | `Operator@123` | OPERATOR |
 
-O seed é executado automaticamente na primeira inicialização da aplicação.
+No Docker, as senhas são obtidas de `SEED_MANAGER_PASSWORD` e `SEED_OPERATOR_PASSWORD`. O seed deve ficar desabilitado em produção.
 
-| E-mail | Senha | Perfil | Organização |
-|---|---|---|---|
-| `manager@rodojacto.com` | `Manager@123` | **MANAGER** | Logística Brasil Ltda |
-| `operator1@rodojacto.com` | `Operator@123` | **OPERATOR** | Logística Brasil Ltda |
-| `operator2@rodojacto.com` | `Operator@123` | **OPERATOR** | TransporteMax S.A. |
+## Variáveis de ambiente
 
----
+| Variável | Obrigatória no Docker | Finalidade |
+|---|---:|---|
+| `MYSQL_PASSWORD` | Sim | Senha do usuário da aplicação no MySQL |
+| `MYSQL_ROOT_PASSWORD` | Sim | Senha administrativa do MySQL |
+| `JWT_SECRET_KEY` | Sim | Chave Base64 usada para assinar JWTs |
+| `JWT_EXPIRATION_MS` | Não | Duração do token; padrão de 1 hora |
+| `SEED_DATA_ENABLED` | Não | Habilita usuários/dados de demonstração |
+| `SEED_MANAGER_PASSWORD` | Se o seed estiver ativo | Senha do manager de demonstração |
+| `SEED_OPERATOR_PASSWORD` | Se o seed estiver ativo | Senha dos operadores de demonstração |
+| `SWAGGER_ENABLED` | Não | Habilita OpenAPI/Swagger; padrão `false` no Docker |
+| `CORS_ALLOWED_ORIGINS` | Não | Origens separadas por vírgula para acesso direto à API |
+| `APP_LOG_LEVEL` | Não | Nível de log da aplicação; padrão `INFO` |
+| `SHOW_SQL` | Não | Loga SQL no perfil local quando `true` |
 
-## 📋 Endpoints da API
+As portas externas também podem ser alteradas com `MYSQL_HOST_PORT`, `BACKEND_HOST_PORT` e `FRONTEND_HOST_PORT`.
+
+## API
 
 ### Autenticação
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
 
 {
   "email": "manager@rodojacto.com",
-  "password": "Manager@123"
+  "password": "sua-senha"
 }
 ```
 
-### Organizações
-```
-GET    /api/organizations           → Lista organizações (filtrado por perfil)
-GET    /api/organizations/{id}      → Busca por ID
-POST   /api/organizations           → Cria organização (MANAGER only)
-PUT    /api/organizations/{id}      → Atualiza organização (MANAGER only)
-DELETE /api/organizations/{id}      → Exclui organização (MANAGER only)
-```
+O token retornado deve ser enviado em `Authorization: Bearer <token>`.
 
-### Colaboradores
-```
-GET    /api/collaborators           → Lista colaboradores (filtrado por perfil)
-GET    /api/collaborators/{id}      → Busca por ID
-POST   /api/collaborators           → Cria colaborador
-PUT    /api/collaborators/{id}      → Atualiza colaborador
-DELETE /api/collaborators/{id}      → Exclui colaborador
-```
+### Recursos
 
-### Dispositivos
-```
-GET    /api/devices                 → Lista dispositivos (filtrado por perfil)
-GET    /api/devices/{id}            → Busca por ID
-POST   /api/devices                 → Cria dispositivo
-PUT    /api/devices/{id}            → Atualiza dispositivo
-DELETE /api/devices/{id}            → Exclui dispositivo
-```
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/organizations` | Lista organizações permitidas |
+| GET | `/api/organizations/{id}` | Obtém uma organização |
+| POST | `/api/organizations` | Cria organização; somente MANAGER |
+| PUT | `/api/organizations/{id}` | Atualiza organização; somente MANAGER |
+| DELETE | `/api/organizations/{id}` | Exclui organização; somente MANAGER |
+| GET/POST | `/api/collaborators` | Lista ou cria colaboradores |
+| GET/PUT/DELETE | `/api/collaborators/{id}` | Consulta, altera ou exclui colaborador |
+| GET/POST | `/api/devices` | Lista ou cria dispositivos |
+| GET/PUT/DELETE | `/api/devices/{id}` | Consulta, altera ou exclui dispositivo |
+| GET | `/api/health` | Verificação pública de saúde |
 
-### Utilitários
-```
-GET    /api/health                  → Health check (público)
-GET    /swagger-ui.html             → Documentação interativa
-```
-
----
-
-## 🔒 Regras de Controle de Acesso
-
-O isolamento de dados por perfil é implementado **na camada de Service** (backend), não apenas no frontend. Isso garante segurança real — mesmo via Postman/curl, as regras são aplicadas.
+### Controle de acesso
 
 | Operação | MANAGER | OPERATOR |
-|---|---|---|
-| Ver todas as organizações | ✅ | ❌ (apenas a própria) |
-| Criar/Editar/Excluir organizações | ✅ | ❌ |
-| Ver todos os colaboradores | ✅ | ❌ (apenas da própria org) |
-| Criar colaborador em qualquer org | ✅ | ❌ (sempre na própria org) |
-| Editar/Excluir colaborador de outra org | ✅ | ❌ (HTTP 403) |
-| Ver todos os dispositivos | ✅ | ❌ (apenas da própria org) |
-| Criar dispositivo em qualquer org | ✅ | ❌ (sempre na própria org) |
-| Editar/Excluir dispositivo de outra org | ✅ | ❌ (HTTP 403) |
+|---|---:|---:|
+| Visualizar organizações | Todas | Somente a própria |
+| Criar, editar ou excluir organização | Sim | Não |
+| Visualizar colaboradores/dispositivos | Todos | Somente os da própria organização |
+| Criar colaboradores/dispositivos | Em qualquer organização | Sempre na própria organização |
+| Alterar ou excluir dados de outra organização | Sim | Não, retorna HTTP 403 |
 
----
+As regras são aplicadas nos serviços do back-end. Ocultar botões no front-end é apenas uma melhoria de experiência e não constitui a barreira de segurança.
 
-## 🧪 Executando os Testes
+## Segurança implementada
+
+- JWT com emissor obrigatório, expiração, identificador único e chave externa no Docker.
+- Senhas armazenadas com BCrypt fator 12.
+- Bloqueio temporário após cinco falhas de login por e-mail em 15 minutos.
+- Mensagens uniformes para credenciais inválidas, sem revelar usuários existentes.
+- Respostas JSON consistentes para 401, 403, 409, 422 e 429.
+- CORS restrito e configurável; credenciais cross-origin desabilitadas.
+- Validação de tamanho, formato, campos obrigatórios e IDs positivos.
+- Normalização de e-mails, identificadores e textos antes da persistência.
+- Headers CSP, `frame-ancestors`, `nosniff`, política de referência e permissões no Nginx.
+- Contêineres sem privilégios adicionais; front-end e back-end executados como usuários não root.
+- Banco exposto apenas em `127.0.0.1` por padrão.
+- Swagger desabilitado por padrão no Docker.
+- Segredos, chaves e arquivos de ambiente ignorados pelo Git.
+- Token mantido em `sessionStorage`, validado antes da restauração e removido em respostas 401.
+
+Para produção real, termine TLS no proxy/balanceador, mantenha segredos em um cofre, deixe o seed e Swagger desabilitados, restrinja a porta direta da API e use um limitador distribuído (por exemplo, Redis) se houver múltiplas instâncias. O limitador incluído é local a cada instância.
+
+## Testes e verificações
+
+Back-end:
 
 ```bash
 cd backend
 ./gradlew test
 ```
 
-Os testes unitários (JUnit 5 + MockK) cobrem os Services com os cenários críticos de negócio:
-- Isolamento de dados por perfil (MANAGER vs OPERATOR)
-- Validações de unicidade (CNPJ, CPF, e-mail, número de série)
-- Comportamento de exceções (404, 403, 422)
+No Windows, substitua por `.\gradlew.bat test`.
 
----
+Front-end:
 
-## 🏛️ Decisões Arquiteturais
-
-### 1. Arquitetura Domain-Driven por Pacotes
-Cada domínio (`organization`, `collaborator`, `device`) possui seu próprio pacote com `Entity`, `Repository`, `Service` e `Controller`. Promove coesão e facilita manutenção.
-
-### 2. Controle de Acesso na Camada de Service
-O filtro por organização para o perfil `OPERATOR` é aplicado na camada de `Service`, não apenas via UI. Mesmo acessando a API diretamente (Postman, curl), um operador não consegue visualizar ou modificar dados de outra organização. O `@AuthenticationPrincipal` injeta o `User` completo (com `organizationId`) sem chamada extra ao banco.
-
-### 3. Flyway para Migrações de Schema
-Todos os scripts DDL são versionados com Flyway, garantindo rastreabilidade e reproducibilidade em qualquer ambiente. O `ddl-auto: validate` no Hibernate garante que o schema seja validado contra as entidades, sem alterações automáticas.
-
-### 4. DataSeeder via ApplicationRunner (não SQL puro)
-O seed de dados usa um componente Spring (`ApplicationRunner`) em vez de um script SQL no Flyway. Isso permite o uso do `BCryptPasswordEncoder` injetado pelo Spring para gerar os hashes de senha de forma segura e idiomática. Inserir hashes BCrypt hardcoded em SQL seria frágil e dificilmente reproduzível.
-
-### 5. JWT Stateless (sem Sessão)
-A autenticação é completamente stateless: o backend não mantém `HttpSession`. Cada requisição carrega o token JWT no header `Authorization: Bearer <token>`, que contém `role` e `organizationId` como claims extras.
-
-### 6. Multi-Stage Docker Build
-O `Dockerfile` do backend usa dois estágios: `eclipse-temurin:17-jdk-alpine` para compilar e `eclipse-temurin:17-jre-alpine` para o runtime, reduzindo significativamente o tamanho da imagem final.
-
----
-
-## ⚠️ Nota sobre SGDBs — MySQL vs PostgreSQL
-
-O edital do desafio cita **PostgreSQL** na seção de entrega, mas a stack principal não especifica o banco de dados relacional.
-
-**Decisão tomada**: Implementamos com **MySQL 8.0** com a seguinte justificativa:
-
-1. **Facilidade de migração**: O Flyway suporta ambos nativamente. Para migrar para PostgreSQL bastaria:
-   - Trocar `com.mysql:mysql-connector-j` por `org.postgresql:postgresql` no `build.gradle.kts`
-   - Atualizar a URL do datasource no `application.yml` (`jdbc:postgresql://...`)
-   - Ajustar diferenças de sintaxe SQL (`AUTO_INCREMENT` → `SERIAL`, `ENGINE=InnoDB` removido)
-   - Trocar `flyway-mysql` por sem dependência extra (PostgreSQL é suportado nativamente pelo flyway-core)
-
-2. **Troca de imagem Docker**: `mysql:8.0` → `postgres:16` no `docker-compose.yml`
-
-3. **Tempo de migração estimado**: < 30 minutos para um desenvolvedor experiente.
-
-Se preferir PostgreSQL, posso realizar essa migração imediatamente.
-
----
-
-## 📁 Estrutura do Projeto
-
+```bash
+cd frontend
+npm ci
+npm run build
+npm audit
 ```
-rodojacto-challenge/
+
+Infraestrutura:
+
+```bash
+docker compose config
+docker compose build
+```
+
+## Estrutura principal
+
+```text
+.
+├── .env.example
 ├── docker-compose.yml
-├── README.md
-├── .gitignore
-│
-├── backend/
+├── backend
+│   ├── gradlew / gradlew.bat
 │   ├── build.gradle.kts
-│   ├── settings.gradle.kts
-│   ├── Dockerfile
-│   └── src/
-│       ├── main/kotlin/com/rodojacto/
-│       │   ├── RodojactoApplication.kt
-│       │   ├── auth/                    # Login + JWT
-│       │   ├── config/                  # SecurityConfig, OpenApiConfig, DataSeeder
-│       │   ├── controller/              # HealthController
-│       │   ├── domain/
-│       │   │   ├── organization/        # Entity + Repository + Service + Controller + DTOs
-│       │   │   ├── collaborator/
-│       │   │   ├── device/
-│       │   │   └── user/
-│       │   ├── dto/                     # ErrorResponse
-│       │   ├── exception/               # Exceções de domínio + GlobalExceptionHandler
-│       │   └── security/               # JwtService + JwtAuthFilter + UserDetailsServiceImpl
-│       └── resources/
-│           ├── application.yml
-│           ├── application-docker.yml
-│           └── db/migration/
-│               ├── V1__create_organizations.sql
-│               ├── V2__create_users.sql
-│               ├── V3__create_collaborators.sql
-│               └── V4__create_devices.sql
-│
-└── frontend/                            # Angular 21 (Standalone Components)
-    ├── public/
-    │   └── rodojacto-logo.png           # Logo oficial da Rodojacto
-    └── src/
-        ├── index.html
-        ├── styles.css                   # Design system Rodojacto (tokens, componentes globais)
-        └── app/
-            ├── app.config.ts            # provideHttpClient + jwtInterceptor
-            ├── app.routes.ts            # Rotas lazy-loaded + authGuard
-            ├── core/
-            │   ├── guards/              # authGuard, managerGuard
-            │   ├── interceptors/        # jwtInterceptor (injeta Bearer token)
-            │   ├── models/              # Interfaces TypeScript dos domínios
-            │   └── services/            # AuthService, OrganizationService, CollaboratorService, DeviceService
-            ├── features/
-            │   ├── auth/login/          # Tela de login
-            │   ├── organizations/       # CRUD de organizações
-            │   ├── collaborators/       # CRUD de colaboradores
-            │   └── devices/             # CRUD de dispositivos
-            └── shared/
-                └── layout/             # Shell da aplicação (sidebar + router-outlet)
+│   └── src
+│       ├── main/kotlin/com/rodojacto
+│       │   ├── auth
+│       │   ├── config
+│       │   ├── domain
+│       │   ├── exception
+│       │   └── security
+│       ├── main/resources/db/migration
+│       └── test/kotlin
+└── frontend
+    ├── proxy.conf.json
+    ├── nginx.conf
+    └── src/app
+        ├── core
+        ├── features
+        └── shared
 ```
+
+## Solução de problemas
+
+- `JAVA_HOME is not set`: instale o JDK 21 e configure `JAVA_HOME`, ou adicione `java` ao `PATH`.
+- Porta em uso: altere as variáveis `*_HOST_PORT` no `.env`.
+- Docker recusa iniciar por variável ausente: copie `.env.example` para `.env` e substitua os placeholders.
+- Front-end local retorna erro de API: confirme que o back-end está em `127.0.0.1:8080`.
+- Token expirado: a sessão é removida automaticamente; faça login novamente.
+- Mudou uma migração já aplicada: crie uma nova versão Flyway em vez de editar uma migração executada.
+
+## Licença e contexto
+
+Projeto desenvolvido como desafio técnico Rodojacto. Antes de uso comercial, defina uma licença explícita e revise as políticas de segurança e retenção de dados da organização.
