@@ -99,8 +99,8 @@ Use `docker compose down -v` only when you also want to permanently remove local
 ### Requirements
 
 - JDK 21 available through `JAVA_HOME` or `PATH`
-- Node.js 22 or 24
-- npm 11
+- Node.js 22 LTS
+- npm 10 or newer
 
 The official Gradle wrapper is included.
 
