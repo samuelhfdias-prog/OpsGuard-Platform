@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthUser, LoginRequest, AuthResponse } from '../models/auth.model';
 
-const STORAGE_KEY = 'rodojacto_session';
+const STORAGE_KEY = 'opsguard_session';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
