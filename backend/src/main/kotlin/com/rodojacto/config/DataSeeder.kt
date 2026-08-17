@@ -82,21 +82,21 @@ class DataSeeder(
             listOf(
                 User(
                     name = "Admin Manager",
-                    email = "manager@rodojacto.com",
+                    email = "manager@opsguard.dev",
                     password = passwordEncoder.encode(managerPassword),
                     role = Role.MANAGER,
                     organization = orgLogistica
                 ),
                 User(
                     name = "Operador Logística",
-                    email = "operator1@rodojacto.com",
+                    email = "operator1@opsguard.dev",
                     password = passwordEncoder.encode(operatorPassword),
                     role = Role.OPERATOR,
                     organization = orgLogistica
                 ),
                 User(
                     name = "Operador Transporte",
-                    email = "operator2@rodojacto.com",
+                    email = "operator2@opsguard.dev",
                     password = passwordEncoder.encode(operatorPassword),
                     role = Role.OPERATOR,
                     organization = orgTransporte
