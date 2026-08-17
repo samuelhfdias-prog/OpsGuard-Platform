@@ -2,7 +2,7 @@
 
 **English** | [Português](README.pt-BR.md)
 
-# RodoJacto Management Platform
+# OpsGuard Platform
 
 **Full-stack organization, collaborator and device management with secure tenant isolation.**
 
@@ -135,9 +135,9 @@ Open http://localhost:4200. The development proxy forwards `/api` requests to th
 
 | User | Password | Role |
 | --- | --- | --- |
-| `manager@rodojacto.com` | `Manager@123` | MANAGER |
-| `operator1@rodojacto.com` | `Operator@123` | OPERATOR |
-| `operator2@rodojacto.com` | `Operator@123` | OPERATOR |
+| `manager@opsguard.dev` | `Manager@123` | MANAGER |
+| `operator1@opsguard.dev` | `Operator@123` | OPERATOR |
+| `operator2@opsguard.dev` | `Operator@123` | OPERATOR |
 
 Docker obtains passwords from `SEED_MANAGER_PASSWORD` and `SEED_OPERATOR_PASSWORD`. Demonstration seeding must remain disabled in production.
 
@@ -168,7 +168,7 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "email": "manager@rodojacto.com",
+  "email": "manager@opsguard.dev",
   "password": "your-password"
 }
 ```
@@ -257,4 +257,4 @@ On Windows, use `.\gradlew.bat test`.
 
 ## Context
 
-This project was developed as a RodoJacto technical challenge. Before commercial use, add an explicit license and review the organization's security and data-retention policies.
+This project is presented as a portfolio platform for secure operational management. Before commercial use, add an explicit license and review the organization's security and data-retention policies.
