@@ -4,7 +4,7 @@
 
 </div>
 
-# Rodojacto — Sistema de Gestão Full Stack
+# OpsGuard Platform — Sistema de Gestão Full Stack
 
 Aplicação web para administrar organizações, colaboradores e dispositivos, com autenticação JWT e isolamento de dados por perfil. O projeto contém uma API Kotlin/Spring Boot, um SPA Angular e uma infraestrutura Docker Compose pronta para Windows, Linux e macOS.
 
@@ -164,9 +164,9 @@ Acesse http://localhost:4200. O proxy de desenvolvimento encaminha chamadas `/ap
 
 | Usuário | Senha | Perfil |
 |---|---|---|
-| `manager@rodojacto.com` | `Manager@123` | MANAGER |
-| `operator1@rodojacto.com` | `Operator@123` | OPERATOR |
-| `operator2@rodojacto.com` | `Operator@123` | OPERATOR |
+| `manager@opsguard.dev` | `Manager@123` | MANAGER |
+| `operator1@opsguard.dev` | `Operator@123` | OPERATOR |
+| `operator2@opsguard.dev` | `Operator@123` | OPERATOR |
 
 No Docker, as senhas são obtidas de `SEED_MANAGER_PASSWORD` e `SEED_OPERATOR_PASSWORD`. O seed deve ficar desabilitado em produção.
 
@@ -197,7 +197,7 @@ POST /api/auth/login
 Content-Type: application/json
 
 {
-  "email": "manager@rodojacto.com",
+  "email": "manager@opsguard.dev",
   "password": "sua-senha"
 }
 ```
@@ -315,4 +315,4 @@ docker compose build
 
 ## Licença e contexto
 
-Projeto desenvolvido como desafio técnico Rodojacto. Antes de uso comercial, defina uma licença explícita e revise as políticas de segurança e retenção de dados da organização.
+Projeto apresentado como plataforma de portfólio para gestão operacional segura. Antes de uso comercial, defina uma licença explícita e revise as políticas de segurança e retenção de dados da organização.
