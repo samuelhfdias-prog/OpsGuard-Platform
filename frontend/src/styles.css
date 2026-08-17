@@ -1,11 +1,11 @@
-/* ── Design Tokens — Rodojacto Brand ──────────────────────────────── */
+/* ── Design Tokens — OpsGuard Design Tokens ──────────────────────────────── */
 :root {
   /* Brand Colors */
-  --jacto-green:        #1e8c3a;
-  --jacto-green-dark:   #166a2c;
-  --jacto-green-light:  rgba(30, 140, 58, 0.15);
-  --jacto-green-glow:   rgba(30, 140, 58, 0.3);
-  --jacto-green-mid:    #27a347;
+  --ops-green:        #1e8c3a;
+  --ops-green-dark:   #166a2c;
+  --ops-green-light:  rgba(30, 140, 58, 0.15);
+  --ops-green-glow:   rgba(30, 140, 58, 0.3);
+  --ops-green-mid:    #27a347;
 
   /* Backgrounds — dark, professional */
   --bg-base:       #09110d;
@@ -15,11 +15,11 @@
   --border:        #26382d;
   --border-light:  #385141;
 
-  /* Primary = Jacto Green */
-  --primary:       var(--jacto-green);
-  --primary-hover: var(--jacto-green-dark);
-  --primary-light: var(--jacto-green-light);
-  --primary-glow:  var(--jacto-green-glow);
+  /* Primary = OpsGuard Green */
+  --primary:       var(--ops-green);
+  --primary-hover: var(--ops-green-dark);
+  --primary-light: var(--ops-green-light);
+  --primary-glow:  var(--ops-green-glow);
 
   /* Accent — amber/gold for contrast */
   --accent:        #f59e0b;
@@ -47,7 +47,7 @@
   --shadow-sm:    0 1px 4px rgba(0,0,0,0.5);
   --shadow-md:    0 4px 20px rgba(0,0,0,0.55);
   --shadow-lg:    0 8px 40px rgba(0,0,0,0.65);
-  --shadow-green: 0 0 24px var(--jacto-green-glow);
+  --shadow-green: 0 0 24px var(--ops-green-glow);
 
   --transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
 }
@@ -69,7 +69,7 @@ html, body {
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--jacto-green); }
+::-webkit-scrollbar-thumb:hover { background: var(--ops-green); }
 
 /* ── Tipografia ────────────────────────────────────────────────────── */
 h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.03em; }
@@ -92,12 +92,12 @@ h3 { font-size: 1.125rem; font-weight: 700; }
 }
 
 .btn-primary {
-  background: var(--jacto-green);
+  background: var(--ops-green);
   color: #fff;
   box-shadow: 0 2px 8px rgba(30,140,58,0.25);
 }
 .btn-primary:hover:not(:disabled) {
-  background: var(--jacto-green-mid);
+  background: var(--ops-green-mid);
   box-shadow: var(--shadow-green);
   transform: translateY(-1px);
 }
@@ -107,8 +107,8 @@ h3 { font-size: 1.125rem; font-weight: 700; }
   border: 1px solid var(--border-light);
 }
 .btn-secondary:hover:not(:disabled) {
-  background: var(--border); border-color: var(--jacto-green);
-  color: var(--jacto-green);
+  background: var(--border); border-color: var(--ops-green);
+  color: var(--ops-green);
 }
 
 .btn-danger {
@@ -145,7 +145,7 @@ h3 { font-size: 1.125rem; font-weight: 700; }
 
 /* ── Accent top-border for cards ───────────────────────────────────── */
 .card-accent {
-  border-top: 3px solid var(--jacto-green);
+  border-top: 3px solid var(--ops-green);
 }
 
 /* ── Tabelas ───────────────────────────────────────────────────────── */
@@ -189,8 +189,8 @@ tbody tr:last-child td { border-bottom: none; }
   outline: none;
 }
 .form-input:focus, .form-select:focus {
-  border-color: var(--jacto-green);
-  box-shadow: 0 0 0 3px var(--jacto-green-light);
+  border-color: var(--ops-green);
+  box-shadow: 0 0 0 3px var(--ops-green-light);
 }
 .form-input.error, .form-select.error { border-color: var(--danger); }
 .form-input::placeholder { color: var(--text-muted); }
@@ -208,10 +208,10 @@ tbody tr:last-child td { border-bottom: none; }
   font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
   font-family: inherit;
 }
-.badge-manager    { background: var(--jacto-green-light); color: var(--jacto-green); }
+.badge-manager    { background: var(--ops-green-light); color: var(--ops-green); }
 .badge-operator   { background: rgba(245,158,11,0.15);    color: var(--accent); }
 .badge-smartphone { background: rgba(34,197,94,0.12);     color: var(--success); }
-.badge-tablet     { background: rgba(30,140,58,0.12);     color: var(--jacto-green); }
+.badge-tablet     { background: rgba(30,140,58,0.12);     color: var(--ops-green); }
 .badge-laptop     { background: rgba(245,158,11,0.12);    color: var(--warning); }
 .badge-tracker    { background: rgba(239,68,68,0.12);     color: var(--danger); }
 .badge-other      { background: rgba(90,112,128,0.15);    color: var(--text-muted); }
@@ -221,8 +221,8 @@ tbody tr:last-child td { border-bottom: none; }
   display: inline-block;
   width: 8px; height: 8px;
   border-radius: 50%;
-  background: var(--jacto-green);
-  box-shadow: 0 0 6px var(--jacto-green-glow);
+  background: var(--ops-green);
+  box-shadow: 0 0 6px var(--ops-green-glow);
   margin-right: 6px;
 }
 
@@ -238,7 +238,7 @@ tbody tr:last-child td { border-bottom: none; }
 .modal {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-top: 3px solid var(--jacto-green);
+  border-top: 3px solid var(--ops-green);
   border-radius: var(--radius-xl);
   width: 100%; max-width: 520px;
   box-shadow: var(--shadow-lg);
@@ -295,14 +295,14 @@ tbody tr:last-child td { border-bottom: none; }
 @keyframes slideUp { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
 @keyframes spin    { to { transform: rotate(360deg) } }
 @keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 0 0 var(--jacto-green-glow); }
+  0%, 100% { box-shadow: 0 0 0 0 var(--ops-green-glow); }
   50%       { box-shadow: 0 0 0 8px transparent; }
 }
 
 /* ── Divisor com acento verde ───────────────────────────────────────── */
 .section-divider {
   height: 3px;
-  background: linear-gradient(90deg, var(--jacto-green), transparent);
+  background: linear-gradient(90deg, var(--ops-green), transparent);
   border: none;
   margin: 24px 0;
   border-radius: 2px;
@@ -318,12 +318,12 @@ tbody tr:last-child td { border-bottom: none; }
   letter-spacing: -0.02em;
 }
 .page-title-accent {
-  color: var(--jacto-green);
+  color: var(--ops-green);
 }
 .page-subtitle { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
 .text-muted    { color: var(--text-muted); }
 .text-sm       { font-size: 12px; }
-.text-green    { color: var(--jacto-green); }
+.text-green    { color: var(--ops-green); }
 .flex          { display: flex; }
 .gap-2         { gap: 8px; }
 .items-center  { align-items: center; }
@@ -350,7 +350,7 @@ tbody tr:last-child td { border-bottom: none; }
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: var(--jacto-green);
+  background: var(--ops-green);
 }
 .stat-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
 .stat-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); }
