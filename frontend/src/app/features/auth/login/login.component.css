@@ -9,7 +9,7 @@
   background: linear-gradient(135deg, rgba(30,140,58,.08), transparent 42%), var(--bg-base);
 }
 
-/* ── Background decorativo com a cor Jacto ─────────────────────────── */
+/* ── Background decorativo com a cor OpsGuard ─────────────────────────── */
 .login-bg { position: absolute; inset: 0; pointer-events: none; }
 .orb {
   position: absolute;
@@ -20,7 +20,7 @@
 }
 .orb-1 {
   width: 500px; height: 500px;
-  background: var(--jacto-green);
+  background: var(--ops-green);
   top: -160px; left: -140px;
 }
 .orb-2 {
@@ -147,7 +147,7 @@
   .login-page { padding: 0; align-items: flex-end; }
   .login-card {
     border: 1px solid var(--border);
-    border-top: 3px solid var(--jacto-green);
+    border-top: 3px solid var(--ops-green);
     border-radius: var(--radius-xl);
     max-width: 420px;
     margin: 12px;
@@ -219,7 +219,7 @@ form { display: flex; flex-direction: column; gap: 16px; }
 .login-hint code {
   font-size: 11px;
   background: var(--bg-surface);
-  color: var(--jacto-green);
+  color: var(--ops-green);
   border: 1px solid var(--border-light);
   padding: 5px 12px;
   border-radius: 4px;
@@ -229,6 +229,6 @@ form { display: flex; flex-direction: column; gap: 16px; }
   cursor: pointer;
 }
 .login-hint code:hover {
-  border-color: var(--jacto-green);
-  background: var(--jacto-green-light);
+  border-color: var(--ops-green);
+  background: var(--ops-green-light);
 }
