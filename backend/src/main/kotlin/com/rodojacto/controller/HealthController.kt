@@ -14,7 +14,7 @@ class HealthController {
         ResponseEntity.ok(
             mapOf(
                 "status" to "UP",
-                "service" to "Rodojacto API",
+                "service" to "OpsGuard API",
                 "version" to "1.0.0"
             )
         )
