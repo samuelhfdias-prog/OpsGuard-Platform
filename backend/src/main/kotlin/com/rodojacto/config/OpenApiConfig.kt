@@ -11,11 +11,11 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 @OpenAPIDefinition(
     info = Info(
-        title = "Rodojacto API",
+        title = "OpsGuard API",
         version = "1.0.0",
         description = "Sistema de gestão de Organizações, Colaboradores e Dispositivos. " +
                 "Autentique-se em /api/auth/login e use o token no botão 'Authorize'.",
-        contact = Contact(name = "Desafio Técnico Rodojacto")
+        contact = Contact(name = "OpsGuard Platform")
     )
 )
 @SecurityScheme(
