@@ -124,8 +124,8 @@ Para também apagar o volume do banco, use `docker compose down -v`. Essa opera�
 ### Requisitos
 
 - JDK 21 em `JAVA_HOME` ou disponível no `PATH`.
-- Node.js 22 ou 24.
-- npm 11.
+- Node.js 22 LTS.
+- npm 10 ou superior.
 
 Não é necessário instalar Gradle: o wrapper oficial acompanha o projeto.
 
